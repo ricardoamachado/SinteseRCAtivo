@@ -80,23 +80,62 @@ fprintf(['Valores obtidos para o biquad 3:\n' ...
     'R1 = R2 = %.2f\nK = %.2f\nR4 = %.2f\n'],Rnum_3,knum_3,R4_3)
 
 %Carremento dados simulação
-dados = readmatrix('Circuito.txt');
+dados = readmatrix('Dados_LTSpice.txt');
+freq = dados(:,1);
+modulo = dados(:,2);
+fase = dados(:,3);
 
 %Gráficos
 figure(1)
-bode(T)
-figure(2)
-f = logspace(3,8,1000);
+f = logspace(2,8,1000);
 h = freqs(b,a,2*pi*f);
-semilogx(f,20*log10(abs(h)));
+semilogx(f,20*log10(abs(h)),LineWidth=1);
 xlabel('Frequência (Hz)')
-ylabel('|T(s)|')
-figure(3)
-ganho_ajustado = knum_1*knum_2*knum_3/kn;
-semilogx(f,20*log10(abs(ganho_ajustado*h)))
+ylabel('|T(s)| (dB)')
+saveas(figure(1),'figura1.png')
+%Gráfico de comparação sobre toda a banda.
+figure(2)
+ganho_ajustado = knum_1*knum_2*knum_3/kn; % Ajuste para o ganho de T(s).
+semilogx(f,20*log10(abs(ganho_ajustado*h)),LineWidth=1)
 hold on
-semilogx(dados(:,1),dados(:,2))
-legend('Gráfico Calculado', 'Gráfico Simulado')
+semilogx(freq,modulo,"--",LineWidth=2.5)
+legend('Função Teórica', 'Circuito Simulado')
 hold off
 xlabel('Frequência (Hz)')
-ylabel('|T(s)|')
+ylabel('|T(s)| (dB)')
+saveas(figure(2),'figura2.png')
+%Gráfico da banda de passagem.
+figure(3)
+semilogx(f,20*log10(abs(ganho_ajustado*h)),LineWidth=1)
+hold on
+semilogx(freq,modulo,"--",LineWidth=2.5)
+xlim([1e6 1e8])
+legend('Função Teórica', 'Circuito Simulado')
+hold off
+xlabel('Frequência (Hz)')
+ylabel('|T(s)| (dB)')
+saveas(figure(3),'figura3.png')
+%Gráfico da banda de rejeição.
+figure(4)
+semilogx(f,20*log10(abs(ganho_ajustado*h)),LineWidth=1)
+hold on
+semilogx(freq,modulo,"--",LineWidth=2.5)
+xlim([1e2 250e3])
+legend('Função Teórica', 'Circuito Simulado')
+hold off
+xlabel('Frequência (Hz)')
+ylabel('|T(s)| (dB)')
+saveas(figure(4),'figura4.png')
+%Gráfico da fase.
+figure(5)
+semilogx(f,180/pi*angle(ganho_ajustado*h),LineWidth=1)
+hold on
+semilogx(freq,fase,"--",LineWidth=2.5)
+hold off
+legend('Função Teórica', 'Circuito Simulado')
+xlabel('Frequência (Hz)')
+ylabel('Fase (graus)')
+saveas(figure(5),'figura5.png')
+
+
+
